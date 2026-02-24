@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "bun@latest",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "cap:sync": "npx cap sync",
-    "cap:ios": "npx cap open ios"
+    "cap:sync": "bunx cap sync",
+    "cap:ios": "bunx cap open ios"
   },
   "dependencies": {
     "gsap": "^3.12.5",

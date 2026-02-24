@@ -4,12 +4,17 @@ A mobile-first ship management game built with Three.js. Build and manage your f
 
 ## Quick Start
 
+> This project uses [Bun](https://bun.sh) as the package manager and runtime.
+> Install Bun if you haven't already: `curl -fsSL https://bun.sh/install | bash`
+
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 Open http://localhost:5173 in your browser (works best on iPad/tablet).
+
+> **Note:** `bun.lock` is the canonical lockfile for this project. `package-lock.json` may also be present but is not used.
 
 ## Controls
 
@@ -51,9 +56,9 @@ Open http://localhost:5173 in your browser (works best on iPad/tablet).
 ## Build for iOS
 
 ```bash
-npm run build
-npx cap sync
-npx cap open ios
+bun run build
+bunx cap sync
+bunx cap open ios
 ```
 
 Then build and run from Xcode.
