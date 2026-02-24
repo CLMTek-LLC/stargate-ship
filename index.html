@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Stargate Ship</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #0a0a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      color: #e0e0e0;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    #game-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    canvas { display: block; }
+
+    /* HUD Layer */
+    #hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    #hud > * { pointer-events: auto; }
+
+    /* Resource Bar */
+    #resource-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: linear-gradient(180deg, rgba(10,10,26,0.95) 0%, rgba(10,10,26,0) 100%);
+      font-size: 15px;
+      font-weight: 600;
+      z-index: 20;
+    }
+    .resource-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
+    }
+    .resource-icon { font-size: 16px; }
+    .resource-value { font-variant-numeric: tabular-nums; }
+
+    /* Stargate Progress */
+    #stargate-progress {
+      position: absolute;
+      bottom: 80px;
+      left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 20;
+    }
+    #stargate-label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #c084fc;
+    }
+    #stargate-bar-outer {
+      width: 220px;
+      height: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    #stargate-bar-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #7c3aed, #c084fc);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+    #stargate-percent {
+      font-size: 12px;
+      color: #a78bfa;
+    }
+
+    /* Bottom Toolbar */
+    #bottom-bar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      background: linear-gradient(0deg, rgba(10,10,26,0.95) 0%, rgba(10,10,26,0) 100%);
+      z-index: 20;
+    }
+    .toolbar-btn {
+      min-width: 80px;
+      min-height: 44px;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #e0e0e0;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s;
+    }
+    .toolbar-btn:active, .toolbar-btn.active {
+      background: rgba(124,58,237,0.4);
+      border-color: #7c3aed;
+    }
+
+    /* Build Panel */
+    #build-panel {
+      position: absolute;
+      top: 60px;
+      right: -300px;
+      bottom: 70px;
+      width: 280px;
+      background: rgba(10,10,26,0.95);
+      border-left: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px 0 0 12px;
+      overflow-y: auto;
+      padding: 16px;
+      z-index: 25;
+      transition: right 0.3s ease;
+      backdrop-filter: blur(12px);
+    }
+    #build-panel.open { right: 0; }
+    #build-panel h3 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #a78bfa;
+      margin-bottom: 12px;
+    }
+    .build-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 56px;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .build-item:active {
+      background: rgba(124,58,237,0.3);
+    }
+    .build-item.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .build-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .build-item-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .build-item-size {
+      font-size: 11px;
+      color: #888;
+    }
+    .build-item-stats {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .build-item-cost {
+      font-size: 12px;
+      color: #fbbf24;
+    }
+
+    /* Module Info Panel */
+    #module-info {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,10,26,0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 16px 20px;
+      min-width: 240px;
+      text-align: center;
+      z-index: 25;
+      backdrop-filter: blur(12px);
+      display: none;
+    }
+    #module-info.visible { display: block; }
+    #module-info-name {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    #module-info-stats {
+      font-size: 13px;
+      color: #aaa;
+    }
+    #module-info-remove {
+      margin-top: 10px;
+      min-height: 44px;
+      padding: 8px 20px;
+      background: rgba(239,68,68,0.2);
+      border: 1px solid rgba(239,68,68,0.4);
+      border-radius: 8px;
+      color: #f87171;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Win Overlay */
+    #win-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(10,10,26,0.9);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+    #win-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #win-title {
+      font-size: 36px;
+      font-weight: 800;
+      color: #c084fc;
+      text-shadow: 0 0 40px rgba(192,132,252,0.6);
+      margin-bottom: 16px;
+    }
+    #win-subtitle {
+      font-size: 18px;
+      color: #a78bfa;
+      margin-bottom: 40px;
+    }
+    #win-btn {
+      min-height: 56px;
+      padding: 16px 40px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Notification Toast */
+    #toast {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(30,30,50,0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+    #toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container"></div>
+
+  <div id="hud">
+    <!-- Resource Bar -->
+    <div id="resource-bar">
+      <div class="resource-item">
+        <span class="resource-icon">⚡</span>
+        <span class="resource-value" id="res-energy">0</span>
+      </div>
+      <div class="resource-item">
+        <span class="resource-icon">🔩</span>
+        <span class="resource-value" id="res-iron">50/500</span>
+      </div>
+      <div class="resource-item">
+        <span class="resource-icon">💎</span>
+        <span class="resource-value" id="res-crystal">0/200</span>
+      </div>
+      <div class="resource-item">
+        <span class="resource-icon">👥</span>
+        <span class="resource-value" id="res-crew">2/2</span>
+      </div>
+    </div>
+
+    <!-- Stargate Progress -->
+    <div id="stargate-progress">
+      <div id="stargate-label">◉ STARGATE</div>
+      <div id="stargate-bar-outer">
+        <div id="stargate-bar-inner"></div>
+      </div>
+      <div id="stargate-percent">0%</div>
+    </div>
+
+    <!-- Module Info -->
+    <div id="module-info">
+      <div id="module-info-name">Solar Panel</div>
+      <div id="module-info-stats">+5 ⚡/s</div>
+      <button id="module-info-remove">Remove Module</button>
+    </div>
+
+    <!-- Build Panel -->
+    <div id="build-panel">
+      <h3>Build Module</h3>
+      <div id="build-list"></div>
+    </div>
+
+    <!-- Bottom Toolbar -->
+    <div id="bottom-bar">
+      <button class="toolbar-btn" id="btn-build">BUILD</button>
+      <button class="toolbar-btn" id="btn-demolish">DEMOLISH</button>
+      <button class="toolbar-btn" id="btn-info">INFO</button>
+    </div>
+  </div>
+
+  <!-- Win Overlay -->
+  <div id="win-overlay">
+    <div id="win-title">STARGATE ACTIVATED</div>
+    <div id="win-subtitle">Your ship is ready to travel to a new star system</div>
+    <button id="win-btn">Travel to New System</button>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
