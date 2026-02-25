@@ -1,0 +1,296 @@
+{
+  "tileWidth": 64,
+  "tileHeight": 48,
+  "modules": {
+    "mining_laser": {
+      "id": "mining_laser",
+      "file": "mining_laser.png",
+      "width": 512,
+      "height": 192,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 4,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "active": {
+          "state": "active",
+          "frames": 8,
+          "fps": 8,
+          "loop": true,
+          "y": 64,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 128,
+          "frameWidth": 64,
+          "frameHeight": 64
+        }
+      }
+    },
+    "refinery": {
+      "id": "refinery",
+      "file": "refinery.png",
+      "width": 1024,
+      "height": 192,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 4,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 128,
+          "frameHeight": 64
+        },
+        "active": {
+          "state": "active",
+          "frames": 8,
+          "fps": 8,
+          "loop": true,
+          "y": 64,
+          "frameWidth": 128,
+          "frameHeight": 64
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 128,
+          "frameWidth": 128,
+          "frameHeight": 64
+        }
+      }
+    },
+    "solar_panel": {
+      "id": "solar_panel",
+      "file": "solar_panel.png",
+      "width": 512,
+      "height": 192,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 4,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "active": {
+          "state": "active",
+          "frames": 8,
+          "fps": 8,
+          "loop": true,
+          "y": 64,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 128,
+          "frameWidth": 64,
+          "frameHeight": 64
+        }
+      }
+    },
+    "fusion_reactor": {
+      "id": "fusion_reactor",
+      "file": "fusion_reactor.png",
+      "width": 1024,
+      "height": 192,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 4,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 128,
+          "frameHeight": 64
+        },
+        "active": {
+          "state": "active",
+          "frames": 8,
+          "fps": 8,
+          "loop": true,
+          "y": 64,
+          "frameWidth": 128,
+          "frameHeight": 64
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 128,
+          "frameWidth": 128,
+          "frameHeight": 64
+        }
+      }
+    },
+    "storage_bay": {
+      "id": "storage_bay",
+      "file": "storage_bay.png",
+      "width": 256,
+      "height": 192,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 4,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "active": {
+          "state": "active",
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "y": 64,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 128,
+          "frameWidth": 64,
+          "frameHeight": 64
+        }
+      }
+    },
+    "crew_quarters": {
+      "id": "crew_quarters",
+      "file": "crew_quarters.png",
+      "width": 512,
+      "height": 192,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 4,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "active": {
+          "state": "active",
+          "frames": 8,
+          "fps": 8,
+          "loop": true,
+          "y": 64,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 128,
+          "frameWidth": 64,
+          "frameHeight": 64
+        }
+      }
+    },
+    "crystal_extractor": {
+      "id": "crystal_extractor",
+      "file": "crystal_extractor.png",
+      "width": 512,
+      "height": 192,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 4,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "active": {
+          "state": "active",
+          "frames": 8,
+          "fps": 8,
+          "loop": true,
+          "y": 64,
+          "frameWidth": 64,
+          "frameHeight": 64
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 128,
+          "frameWidth": 64,
+          "frameHeight": 64
+        }
+      }
+    },
+    "stargate_core": {
+      "id": "stargate_core",
+      "file": "stargate_core.png",
+      "width": 2304,
+      "height": 288,
+      "animations": {
+        "idle": {
+          "state": "idle",
+          "frames": 6,
+          "fps": 4,
+          "loop": true,
+          "y": 0,
+          "frameWidth": 192,
+          "frameHeight": 96
+        },
+        "active": {
+          "state": "active",
+          "frames": 12,
+          "fps": 8,
+          "loop": true,
+          "y": 96,
+          "frameWidth": 192,
+          "frameHeight": 96
+        },
+        "offline": {
+          "state": "offline",
+          "frames": 2,
+          "fps": 2,
+          "loop": true,
+          "y": 192,
+          "frameWidth": 192,
+          "frameHeight": 96
+        }
+      }
+    }
+  },
+  "hull": {
+    "file": "hull.png",
+    "width": 128,
+    "height": 48
+  },
+  "nebula": {
+    "file": "nebula.png",
+    "width": 512,
+    "height": 256
+  }
+}

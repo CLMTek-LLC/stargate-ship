@@ -5,8 +5,10 @@
   "type": "module",
   "packageManager": "bun@latest",
   "scripts": {
+    "sprites": "tsx scripts/generate-sprites.ts",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "dev:full": "npm run sprites && vite",
+    "build": "npm run sprites && tsc && vite build",
     "preview": "vite preview",
     "cap:sync": "bunx cap sync",
     "cap:ios": "bunx cap open ios"
@@ -22,7 +24,10 @@
     "@capacitor/core": "^6.1.0",
     "@capacitor/ios": "^6.1.0",
     "@types/hammerjs": "^2.0.45",
+    "@types/sharp": "^0.31.1",
     "@types/three": "^0.165.0",
+    "sharp": "^0.34.5",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.0",
     "vite": "^5.4.0"
   }
