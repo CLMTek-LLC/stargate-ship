@@ -10,8 +10,8 @@
     "dev:full": "npm run sprites && vite",
     "build": "npm run sprites && tsc && vite build",
     "preview": "vite preview",
-    "cap:sync": "bunx cap sync",
-    "cap:ios": "bunx cap open ios"
+    "cap:sync": "npx cap sync",
+    "cap:ios": "npx cap open ios"
   },
   "dependencies": {
     "gsap": "^3.12.5",

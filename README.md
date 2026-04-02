@@ -57,8 +57,8 @@ Open http://localhost:5173 in your browser (works best on iPad/tablet).
 
 ```bash
 bun run build
-bunx cap sync
-bunx cap open ios
+npx cap sync
+npx cap open ios
 ```
 
 Then build and run from Xcode.
