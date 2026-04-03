@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import gsap from 'gsap'
 import { GRID_WIDTH, GRID_HEIGHT, CELL_SIZE, type PlacedModule } from './resources/types'
 import { MODULE_DEFS } from './modules/index'
 import { gameStore } from './resources/ResourceManager'
@@ -413,12 +414,46 @@ export class Ship {
 
     grp.add(mesh)
     this.moduleGroup.add(grp)
+    this.animatePlacement(grp, mesh, isSprite)
     this.moduleMeshes.set(key, {
       group: grp,
       mesh,
       defId: mod.defId,
       isSprite,
       currentAnim: mod.online ? 'active' : 'idle',
+    })
+  }
+
+  private animatePlacement(group: THREE.Group, mesh: THREE.Mesh, isSprite: boolean) {
+    group.scale.setScalar(0.82)
+    gsap.to(group.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 0.42,
+      ease: 'back.out(2.2)',
+    })
+
+    if (isSprite) {
+      const mat = mesh.material as THREE.MeshBasicMaterial
+      const originalOpacity = mat.opacity
+      mat.transparent = true
+      mat.opacity = 0
+      gsap.to(mat, {
+        opacity: originalOpacity,
+        duration: 0.22,
+        ease: 'power1.out',
+      })
+      return
+    }
+
+    const mat = mesh.material as THREE.MeshStandardMaterial
+    const originalIntensity = mat.emissiveIntensity
+    mat.emissiveIntensity = Math.max(originalIntensity, 0.8)
+    gsap.to(mat, {
+      emissiveIntensity: originalIntensity,
+      duration: 0.45,
+      ease: 'power2.out',
     })
   }
 
@@ -454,6 +489,19 @@ export class Ship {
     const gy = Math.round(localZ / CELL_SIZE)
     if (gx < 0 || gx >= GRID_WIDTH || gy < 0 || gy >= GRID_HEIGHT) return null
     return { x: gx, y: gy }
+  }
+
+  getModuleWorldCenter(mod: PlacedModule, lift = 0.95): THREE.Vector3 {
+    const def = MODULE_DEFS[mod.defId]
+    const width = def?.width ?? 1
+    const height = def?.height ?? 1
+    const localX = (mod.gridX + width / 2 - 0.5) * CELL_SIZE
+    const localZ = (mod.gridY + height / 2 - 0.5) * CELL_SIZE
+    return new THREE.Vector3(
+      this.group.position.x + localX,
+      lift,
+      this.group.position.z + localZ,
+    )
   }
 
   canPlace(defId: string, gridX: number, gridY: number): boolean {

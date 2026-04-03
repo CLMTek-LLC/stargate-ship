@@ -4,7 +4,7 @@ import { Ship } from './Ship'
 import { SpriteSheet } from './SpriteSheet'
 import { TouchInput } from './input/TouchInput'
 import { HUD } from './ui/HUD'
-import { gameStore } from './resources/ResourceManager'
+import { gameStore, type GameStore } from './resources/ResourceManager'
 import { MODULE_DEFS } from './modules/index'
 import type { PlacedModule, GameState } from './resources/types'
 import gsap from 'gsap'
@@ -21,6 +21,7 @@ export class Game {
   private spriteSheet: SpriteSheet
   private input!: TouchInput
   private hud!: HUD
+  private floatingTextLayer!: HTMLElement
   private clock = new THREE.Clock()
   private tickTimer = 0
   private saveTimer = 0
@@ -50,6 +51,7 @@ export class Game {
 
     // Sprite sheet (async load)
     this.spriteSheet = new SpriteSheet()
+    this.floatingTextLayer = document.getElementById('floating-text-layer')!
 
     // Initialize synchronously first with fallback, then upgrade when sprites load
     this.initScene()
@@ -397,9 +399,12 @@ export class Game {
     this.tickTimer += dt
     if (this.tickTimer >= TICK_INTERVAL / 1000) {
       this.tickTimer = 0
+      const beforeTick = gameStore.getState()
       gameStore.getState().tick()
 
       const state = gameStore.getState()
+      this.spawnProductionText(beforeTick, state)
+
       if (state.stargateProgress >= 100 && !this.won) {
         this.won = true
         gameStore.getState().setWon()
@@ -449,6 +454,59 @@ export class Game {
         overlay.style.pointerEvents = 'auto'
       },
     })
+  }
+
+  private spawnProductionText(beforeState: GameStore, afterState: GameStore) {
+    const ironDelta = afterState.resources.iron - beforeState.resources.iron
+    const crystalDelta = afterState.resources.crystal - beforeState.resources.crystal
+    const energyDelta = afterState.resources.energy - beforeState.resources.energy
+
+    if (ironDelta <= 0 && crystalDelta <= 0 && energyDelta <= 0) return
+
+    for (const mod of afterState.modules) {
+      if (!mod.online) continue
+      const def = MODULE_DEFS[mod.defId]
+      if (!def) continue
+
+      const base = this.ship.getModuleWorldCenter(mod, 1.15)
+      const entries: Array<{ text: string; color: string; lift: number }> = []
+
+      if (def.production.iron && ironDelta > 0) {
+        entries.push({ text: `+${def.production.iron} Iron`, color: '#fbbf24', lift: 0 })
+      }
+      if (def.production.crystal && crystalDelta > 0) {
+        entries.push({ text: `+${def.production.crystal} Crystal`, color: '#c084fc', lift: 0.14 })
+      }
+      if (def.powerPerTick > 0 && energyDelta > 0) {
+        entries.push({ text: `+${def.powerPerTick} Energy`, color: '#fde68a', lift: 0.28 })
+      }
+
+      for (const entry of entries) {
+        this.spawnFloatingText(entry.text, base.x, base.y + entry.lift, base.z, entry.color)
+      }
+    }
+  }
+
+  private spawnFloatingText(text: string, worldX: number, worldY: number, worldZ: number, color: string) {
+    const worldPos = new THREE.Vector3(worldX, worldY, worldZ)
+    const projected = worldPos.project(this.isoCamera.camera)
+    if (projected.z > 1) return
+
+    const rect = this.renderer.domElement.getBoundingClientRect()
+    const sx = ((projected.x + 1) / 2) * rect.width
+    const sy = ((1 - projected.y) / 2) * rect.height
+
+    const el = document.createElement('div')
+    el.className = 'floating-resource-text'
+    el.textContent = text
+    el.style.color = color
+    el.style.left = `${sx}px`
+    el.style.top = `${sy}px`
+    this.floatingTextLayer.appendChild(el)
+
+    window.setTimeout(() => {
+      el.remove()
+    }, 1200)
   }
 
   // ── Save / Load ───────────────────────────────────────────────────
