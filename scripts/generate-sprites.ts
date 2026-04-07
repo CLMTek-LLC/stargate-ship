@@ -60,6 +60,16 @@ function darken(c: RGBA, factor: number): RGBA {
   return brighten(c, 1 / factor)
 }
 
+/** Deterministic PRNG for reproducible sprite generation */
+function mulberry32(seed: number): () => number {
+  return () => {
+    let t = (seed += 0x6d2b79f5)
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 // ── SVG-based drawing (rasterized via sharp) ───────────────────────────
 
 /** Create an isometric diamond (floor tile) as SVG */
@@ -413,7 +423,9 @@ async function generateHullTile(): Promise<void> {
 
 async function generateNebula(): Promise<void> {
   const w = 512, h = 256
-  // Create a soft nebula cloud using overlapping SVG ellipses
+  // Create a soft nebula cloud using overlapping SVG ellipses.
+  // Use a deterministic PRNG so the tracked asset is stable across builds.
+  const rand = mulberry32(0x5e7a1c2d)
   const blobs: string[] = []
   const colors = [
     { r: 80, g: 40, b: 140 },
@@ -424,11 +436,11 @@ async function generateNebula(): Promise<void> {
 
   for (let i = 0; i < 12; i++) {
     const c = colors[i % colors.length]
-    const cx = 80 + Math.random() * (w - 160)
-    const cy = 40 + Math.random() * (h - 80)
-    const rx = 60 + Math.random() * 120
-    const ry = 30 + Math.random() * 60
-    blobs.push(`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="rgb(${c.r},${c.g},${c.b})" opacity="${0.15 + Math.random() * 0.15}" filter="url(#nb)"/>`)
+    const cx = 80 + rand() * (w - 160)
+    const cy = 40 + rand() * (h - 80)
+    const rx = 60 + rand() * 120
+    const ry = 30 + rand() * 60
+    blobs.push(`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="rgb(${c.r},${c.g},${c.b})" opacity="${0.15 + rand() * 0.15}" filter="url(#nb)"/>`)
   }
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
