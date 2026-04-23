@@ -111,11 +111,11 @@ export class Game {
   private async loadSpritesAndUpgrade() {
     const loaded = await this.spriteSheet.load()
     if (!loaded) {
-      console.log('Sprites not available, using fallback box rendering')
+      console.debug('[Game] Sprites not available, using fallback box rendering')
       return
     }
 
-    console.log('Sprites loaded, upgrading visuals')
+    console.debug('[Game] Sprites loaded, upgrading visuals')
 
     // Remove old ship, create new one with sprite sheet
     this.scene.remove(this.ship.group)
