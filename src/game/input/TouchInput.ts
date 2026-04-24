@@ -13,6 +13,8 @@ export class TouchInput {
   private raycaster = new THREE.Raycaster()
   private mouse = new THREE.Vector2()
   private lastPinchScale = 1
+  private lastPanCenter = { x: 0, y: 0 }
+  private isPanning = false
 
   constructor(element: HTMLElement, isoCamera: IsometricCamera) {
     this.isoCamera = isoCamera
@@ -41,9 +43,26 @@ export class TouchInput {
       this.isoCamera.setZoom(this.lastPinchScale * e.scale)
     })
 
-    this.hammer.on('pan', (e) => {
+    // Smooth 2-finger pan using delta tracking instead of velocity
+    this.hammer.on('panstart', () => {
+      this.isPanning = true
+    })
+
+    this.hammer.on('panmove', (e) => {
+      if (!this.isPanning) {
+        this.lastPanCenter = { x: e.center.x, y: e.center.y }
+        this.isPanning = true
+        return
+      }
+      const dx = (e.center.x - this.lastPanCenter.x)
+      const dy = (e.center.y - this.lastPanCenter.y)
       const speed = 0.02 / this.isoCamera.getZoom()
-      this.isoCamera.pan(-e.velocityX * speed * 5, -e.velocityY * speed * 5)
+      this.isoCamera.pan(-dx * speed, dy * speed)
+      this.lastPanCenter = { x: e.center.x, y: e.center.y }
+    })
+
+    this.hammer.on('panend', () => {
+      this.isPanning = false
     })
 
     // Mouse wheel zoom for desktop testing
