@@ -14,6 +14,7 @@
     "cap:ios": "npx cap open ios"
   },
   "dependencies": {
+    "@capacitor/haptics": "^8.0.2",
     "gsap": "^3.12.5",
     "hammerjs": "^2.0.8",
     "three": "^0.165.0",

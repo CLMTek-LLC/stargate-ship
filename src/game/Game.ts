@@ -8,6 +8,7 @@ import { gameStore } from './resources/ResourceManager'
 import { MODULE_DEFS } from './modules/index'
 import type { PlacedModule, GameState } from './resources/types'
 import gsap from 'gsap'
+import { Haptics, ImpactStyle } from '@capacitor/haptics'
 
 const SAVE_KEY = 'stargate-ship-save'
 const SAVE_INTERVAL = 30_000
@@ -290,6 +291,7 @@ export class Game {
           gameStore.setState({ resources: res })
           gameStore.getState().removeModule(mod.gridX, mod.gridY)
           this.hud.toast(`Removed ${def.name} (+${Math.floor(def.costIron / 2)} Iron)`, '#f87171')
+          Haptics.impact({ style: ImpactStyle.Light }).catch(() => {})
         }
         return
       }
@@ -383,6 +385,9 @@ export class Game {
     }
 
     this.hud.toast(`Built ${def.name}!`, '#4ade80')
+
+    // Haptic feedback on module placement (graceful fallback on web/unsupported)
+    Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {})
   }
 
   // ── Game loop ─────────────────────────────────────────────────────
