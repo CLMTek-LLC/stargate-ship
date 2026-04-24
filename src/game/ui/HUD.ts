@@ -22,6 +22,8 @@ export class HUD {
   private toastTimer: ReturnType<typeof setTimeout> | null = null
   /** Active GSAP tween for the build panel, so we can kill() before starting a new one */
   private panelTween: gsap.core.Tween | null = null
+  /** Active GSAP tween for the module info panel */
+  private infoTween: gsap.core.Tween | null = null
 
   constructor() {
     this.buildPanel = document.getElementById('build-panel')!
@@ -61,6 +63,11 @@ export class HUD {
     // Remove module button
     document.getElementById('module-info-remove')!.addEventListener('click', () => {
       this.onRemove?.()
+      this.hideModuleInfo()
+    })
+
+    // Close module info button
+    document.getElementById('module-info-close')!.addEventListener('click', () => {
       this.hideModuleInfo()
     })
 
@@ -118,11 +125,31 @@ export class HUD {
     this.selectedModuleKey = `${gridX},${gridY}`
     document.getElementById('module-info-name')!.textContent = def.name
     document.getElementById('module-info-stats')!.textContent = def.description
+
+    // Kill any running tween and animate in with GSAP
+    if (this.infoTween) this.infoTween.kill()
     this.moduleInfo.classList.add('visible')
+    this.infoTween = gsap.fromTo(this.moduleInfo,
+      { opacity: 0, scale: 0.9 },
+      {
+        opacity: 1, scale: 1,
+        duration: 0.25,
+        ease: 'back.out(1.2)',
+        overwrite: 'auto',
+      },
+    )
   }
 
   hideModuleInfo() {
-    this.moduleInfo.classList.remove('visible')
+    if (this.infoTween) this.infoTween.kill()
+    this.infoTween = gsap.to(this.moduleInfo, {
+      opacity: 0, scale: 0.9,
+      duration: 0.2,
+      ease: 'power2.in',
+      onComplete: () => {
+        this.moduleInfo.classList.remove('visible')
+      },
+    })
     this.selectedModuleKey = null
   }
 

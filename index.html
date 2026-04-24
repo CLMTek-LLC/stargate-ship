@@ -198,7 +198,9 @@
       position: absolute;
       bottom: 80px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) scale(0.9);
+      opacity: 0;
+      pointer-events: none;
       background: rgba(10,10,26,0.95);
       border: 1px solid rgba(255,255,255,0.15);
       border-radius: 12px;
@@ -207,13 +209,43 @@
       text-align: center;
       z-index: 25;
       backdrop-filter: blur(12px);
-      display: none;
     }
-    #module-info.visible { display: block; }
+    #module-info.visible {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+      pointer-events: auto;
+    }
+    #module-info-close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      color: #aaa;
+      font-size: 16px;
+      line-height: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      top: 4px;
+      right: 4px;
+    }
+    #module-info-close:hover {
+      background: rgba(255,255,255,0.15);
+    }
     #module-info-name {
       font-weight: 700;
       font-size: 16px;
       margin-bottom: 4px;
+      padding-right: 36px;
     }
     #module-info-stats {
       font-size: 13px;
@@ -332,6 +364,7 @@
 
     <!-- Module Info -->
     <div id="module-info">
+      <button id="module-info-close">✕</button>
       <div id="module-info-name">Solar Panel</div>
       <div id="module-info-stats">+5 ⚡/s</div>
       <button id="module-info-remove">Remove Module</button>
