@@ -1,6 +1,10 @@
+import gsap from 'gsap'
 import { gameStore, type GameStore } from '../resources/ResourceManager'
 import { MODULE_DEFS, BUILD_ORDER } from '../modules/index'
 import type { Resources } from '../resources/types'
+
+const PANEL_OPEN_RIGHT = 0
+const PANEL_CLOSED_RIGHT = -300
 
 export type BuildCallback = (defId: string) => void
 export type RemoveCallback = () => void
@@ -16,6 +20,8 @@ export class HUD {
   private demolishMode = false
   private toastEl: HTMLElement
   private toastTimer: ReturnType<typeof setTimeout> | null = null
+  /** Active GSAP tween for the build panel, so we can kill() before starting a new one */
+  private panelTween: gsap.core.Tween | null = null
 
   constructor() {
     this.buildPanel = document.getElementById('build-panel')!
@@ -27,7 +33,7 @@ export class HUD {
     document.getElementById('btn-build')!.addEventListener('click', () => {
       this.buildMode = !this.buildMode
       this.demolishMode = false
-      this.buildPanel.classList.toggle('open', this.buildMode)
+      this.animateBuildPanel(this.buildMode)
       document.getElementById('btn-build')!.classList.toggle('active', this.buildMode)
       document.getElementById('btn-demolish')!.classList.remove('active')
       this.hideModuleInfo()
@@ -37,7 +43,7 @@ export class HUD {
     document.getElementById('btn-demolish')!.addEventListener('click', () => {
       this.demolishMode = !this.demolishMode
       this.buildMode = false
-      this.buildPanel.classList.remove('open')
+      this.animateBuildPanel(false)
       document.getElementById('btn-demolish')!.classList.toggle('active', this.demolishMode)
       document.getElementById('btn-build')!.classList.remove('active')
       this.hideModuleInfo()
@@ -47,7 +53,7 @@ export class HUD {
     document.getElementById('btn-info')!.addEventListener('click', () => {
       this.buildMode = false
       this.demolishMode = false
-      this.buildPanel.classList.remove('open')
+      this.animateBuildPanel(false)
       document.getElementById('btn-build')!.classList.remove('active')
       document.getElementById('btn-demolish')!.classList.remove('active')
     })
@@ -122,6 +128,24 @@ export class HUD {
 
   getSelectedModuleKey(): string | null {
     return this.selectedModuleKey
+  }
+
+  /** Animate build panel slide-in/out using GSAP for smooth easing */
+  private animateBuildPanel(open: boolean) {
+    if (this.panelTween) {
+      this.panelTween.kill()
+    }
+    const targetRight = open ? PANEL_OPEN_RIGHT : PANEL_CLOSED_RIGHT
+    this.panelTween = gsap.to(this.buildPanel, {
+      right: targetRight,
+      duration: 0.35,
+      ease: 'back.out(1.2)',
+      overwrite: 'auto',
+      onComplete: () => {
+        if (open) this.buildPanel.classList.add('open')
+        else this.buildPanel.classList.remove('open')
+      },
+    })
   }
 
   toast(message: string, color = '#e0e0e0') {
