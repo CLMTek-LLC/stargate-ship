@@ -92,13 +92,7 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
         res.crystal = Math.min(res.maxCrystal, res.crystal + def.production.crystal)
       }
 
-      // Storage & crew capacity
-      if (mod.defId === 'storage_bay') {
-        // capacity already factored in maxIron
-      }
-      if (mod.defId === 'crew_quarters') {
-        // crew max already factored
-      }
+      // Storage & crew capacity handled below
     }
 
     // Recalculate max storage and crew based on modules
