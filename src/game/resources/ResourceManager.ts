@@ -62,13 +62,13 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
     const crewRequired = Math.ceil(modules.length / 3)
     const crewSufficient = res.crew >= crewRequired
 
-    // Set modules online/offline based on power and crew
+    // Set modules online/offline based on power availability
     const powerAvailable = res.energy > 0 || netPower >= 0
     for (const mod of modules) {
-      mod.online = powerAvailable && crewSufficient
+      mod.online = powerAvailable
     }
 
-    // If not enough crew, disable random modules until ratio met
+    // If not enough crew, disable modules from tail until ratio met
     if (!crewSufficient) {
       const toDisable = crewRequired - res.crew
       let disabled = 0
