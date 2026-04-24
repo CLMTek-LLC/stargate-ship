@@ -193,6 +193,26 @@ export class Ship {
     this.particlePool = { positions, velocities, colors, lifetimes, points }
   }
 
+  /**
+   * Emit a placement burst ring — 8 particles bursting outward in a ring
+   */
+  emitPlacementBurst(gridX: number, gridY: number, color: number) {
+    const cx = gridX * CELL_SIZE + CELL_SIZE / 2
+    const cz = gridY * CELL_SIZE + CELL_SIZE / 2
+    const r = ((color >> 16) & 0xff) / 255
+    const g = ((color >> 8) & 0xff) / 255
+    const b = (color & 0xff) / 255
+    for (let i = 0; i < 8; i++) {
+      const angle = (Math.PI * 2 * i) / 8
+      this.spawnParticle(
+        cx, 0.25, cz,
+        Math.cos(angle) * 2, 1.5 + Math.random(),
+        Math.sin(angle) * 2,
+        r, g, b,
+      )
+    }
+  }
+
   private spawnParticle(
     x: number, y: number, z: number,
     vx: number, vy: number, vz: number,

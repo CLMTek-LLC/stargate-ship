@@ -380,6 +380,9 @@ export class Game {
     const placed: PlacedModule = { defId, gridX, gridY, online: true }
     gameStore.getState().addModule(placed)
 
+    // Placement burst particle ring
+    this.ship.emitPlacementBurst(gridX, gridY, def.color)
+
     if (defId === 'crew_quarters') {
       const r = { ...gameStore.getState().resources }
       r.maxCrew += 2
