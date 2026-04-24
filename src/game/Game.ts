@@ -28,6 +28,9 @@ export class Game {
   private selectedBuildDef: string | null = null
   private won = false
 
+  // Previous tick resource snapshot for floating text deltas
+  private prevResources: { iron: number; crystal: number; energy: number } | null = null
+
   // Parallax layers
   private bgLayer0: THREE.Points | null = null // deep starfield
   private bgLayer1: THREE.Mesh | null = null   // nebula
@@ -402,7 +405,50 @@ export class Game {
     this.tickTimer += dt
     if (this.tickTimer >= TICK_INTERVAL / 1000) {
       this.tickTimer = 0
+
+      // Snapshot resources before tick for delta tracking
+      const preState = gameStore.getState()
+      const preIron = preState.resources.iron
+      const preCrystal = preState.resources.crystal
+      const preEnergy = preState.resources.energy
+
       gameStore.getState().tick()
+
+      const postState = gameStore.getState()
+      const dIron = Math.floor(postState.resources.iron - preIron)
+      const dCrystal = Math.floor(postState.resources.crystal - preCrystal)
+      const dEnergy = Math.floor(postState.resources.energy - preEnergy)
+
+      // Show floating text for resource gains
+      if (dIron > 0) {
+        // Find a producing module to anchor the text to
+        const producer = postState.modules.find((m) => {
+          const def = MODULE_DEFS[m.defId]
+          return def && def.production.iron && m.online
+        })
+        if (producer) {
+          this.hud.showFloatingText(`+${dIron} 🔩`, '#4ade80', producer.gridX, producer.gridY)
+        }
+      }
+      if (dCrystal > 0) {
+        const producer = postState.modules.find((m) => {
+          const def = MODULE_DEFS[m.defId]
+          return def && def.production.crystal && m.online
+        })
+        if (producer) {
+          this.hud.showFloatingText(`+${dCrystal} 💎`, '#818cf8', producer.gridX, producer.gridY)
+        }
+      }
+      if (dEnergy > 5) {
+        // Energy surplus shows from solar panel / fusion reactor
+        const producer = postState.modules.find((m) => {
+          const def = MODULE_DEFS[m.defId]
+          return def && def.powerPerTick > 0 && m.online
+        })
+        if (producer) {
+          this.hud.showFloatingText(`+${dEnergy} ⚡`, '#fbbf24', producer.gridX, producer.gridY)
+        }
+      }
 
       const state = gameStore.getState()
       if (state.stargateProgress >= 100 && !this.won) {

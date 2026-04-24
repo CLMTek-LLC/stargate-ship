@@ -24,12 +24,14 @@ export class HUD {
   private panelTween: gsap.core.Tween | null = null
   /** Active GSAP tween for the module info panel */
   private infoTween: gsap.core.Tween | null = null
+  private floatContainer: HTMLElement
 
   constructor() {
     this.buildPanel = document.getElementById('build-panel')!
     this.buildList = document.getElementById('build-list')!
     this.moduleInfo = document.getElementById('module-info')!
     this.toastEl = document.getElementById('toast')!
+    this.floatContainer = document.getElementById('floating-text-container')!
 
     // Build button
     document.getElementById('btn-build')!.addEventListener('click', () => {
@@ -183,6 +185,39 @@ export class HUD {
     this.toastTimer = setTimeout(() => {
       this.toastEl.classList.remove('visible')
     }, 2000)
+  }
+
+  /** Show floating text that rises, fades, and is removed (e.g., "+1 Iron" on production tick) */
+  showFloatingText(text: string, color: string, gridX: number, gridY: number) {
+    const el = document.createElement('div')
+    el.className = 'floating-text'
+    el.textContent = text
+    el.style.color = color
+
+    // Position relative to grid cell (HUD space — approximate center of the ship viewport area)
+    // The grid is 20 wide, 12 tall; map (gridX, gridY) to screen position roughly centered
+    const cellPx = 38 // approximate cell pixel size in view
+    const originX = window.innerWidth / 2
+    const originZ = window.innerHeight / 2 - 60
+    const hw = 20 / 2
+    const hh = 12 / 2
+    const sx = originX + (gridX - hw + 0.5) * cellPx
+    const sy = originZ + (gridY - hh) * cellPx
+    el.style.left = `${sx}px`
+    el.style.top = `${sy}px`
+
+    this.floatContainer.appendChild(el)
+
+    // GSAP animation: float up, fade out, then remove element
+    gsap.to(el, {
+      y: -60,
+      opacity: 0,
+      duration: 1.2,
+      ease: 'power2.out',
+      onComplete: () => {
+        el.remove()
+      },
+    })
   }
 
   update(state: GameStore) {

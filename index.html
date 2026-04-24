@@ -306,6 +306,23 @@
       cursor: pointer;
     }
 
+    /* Floating Resource Text */
+    #floating-text-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+    .floating-text {
+      position: absolute;
+      font-size: 18px;
+      font-weight: 800;
+      pointer-events: none;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6), 0 0 12px currentColor;
+      will-change: transform, opacity;
+    }
+
     /* Notification Toast */
     #toast {
       position: fixed;
@@ -383,6 +400,9 @@
       <button class="toolbar-btn" id="btn-info">INFO</button>
     </div>
   </div>
+
+  <!-- Floating Resource Text Container -->
+  <div id="floating-text-container"></div>
 
   <!-- Win Overlay -->
   <div id="win-overlay">
