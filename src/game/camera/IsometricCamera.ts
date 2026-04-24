@@ -34,9 +34,13 @@ export class IsometricCamera {
   pan(dx: number, dy: number) {
     this.targetPan.x += dx
     this.targetPan.y += dy
-    // Clamp pan
-    this.targetPan.x = Math.max(-15, Math.min(15, this.targetPan.x))
-    this.targetPan.y = Math.max(-10, Math.min(10, this.targetPan.y))
+    // Zoom-aware pan bounds — at high zoom you need more range to see corners,
+    // at low zoom the full grid is already visible
+    const z = this.currentZoom || 1
+    const limitX = 15 / z
+    const limitY = 10 / z
+    this.targetPan.x = Math.max(-limitX, Math.min(limitX, this.targetPan.x))
+    this.targetPan.y = Math.max(-limitY, Math.min(limitY, this.targetPan.y))
   }
 
   resize(aspect: number) {
