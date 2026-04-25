@@ -59,6 +59,7 @@ export class Game {
 
     // Initialize synchronously first with fallback, then upgrade when sprites load
     this.initScene()
+    this.initFPSCounter()
     this.loadSpritesAndUpgrade()
   }
 
@@ -497,6 +498,47 @@ export class Game {
 
     // Render
     this.renderer.render(this.scene, this.isoCamera.camera)
+
+    // FPS counter
+    this.updateFPS(dt)
+  }
+
+  // ── FPS Counter ───────────────────────────────────────────────────
+  private fpsHistory: number[] = []
+  private fpsEl: HTMLDivElement | null = null
+  private fpsVisible = false
+
+  private initFPSCounter() {
+    const el = document.createElement('div')
+    el.id = 'fps-counter'
+    el.style.cssText = `
+      position: fixed; top: 8px; right: 8px; z-index: 999;
+      font-family: monospace; font-size: 13px; color: #a3e635;
+      background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px;
+      display: none; pointer-events: none;
+    `
+    document.body.appendChild(el)
+    this.fpsEl = el
+
+    // Toggle with F key (hold Shift for debug mode)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
+        this.fpsVisible = !this.fpsVisible
+        if (this.fpsEl) this.fpsEl.style.display = this.fpsVisible ? 'block' : 'none'
+      }
+    })
+  }
+
+  private updateFPS(dt: number) {
+    if (!this.fpsEl || !this.fpsVisible) return
+    const fps = Math.round(1 / Math.max(dt, 0.001))
+    this.fpsHistory.push(fps)
+    if (this.fpsHistory.length > 120) this.fpsHistory.shift()
+    const avg = Math.round(this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length)
+    const min = Math.min(...this.fpsHistory)
+    const pct60 = (this.fpsHistory.filter(f => f >= 58).length / this.fpsHistory.length * 100).toFixed(0)
+    this.fpsEl.textContent = `FPS: ${fps} (avg: ${avg} | min: ${min} | ≥58fps: ${pct60}%)`
+    this.fpsEl.style.color = avg >= 58 ? '#a3e635' : avg >= 30 ? '#fbbf24' : '#f87171'
   }
 
   private warpLines: THREE.Points | null = null
