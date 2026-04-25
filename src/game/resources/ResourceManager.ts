@@ -16,16 +16,28 @@ const defaultResources: Resources = {
   iron: 100,
   crystal: 0,
   energy: 0,
-  crew: 2,
+  crew: 4,
   maxIron: 500,
   maxCrystal: 200,
   maxEnergy: 1000,
-  maxCrew: 2,
+  maxCrew: 6,
 }
+
+/** Starter modules pre-placed at game start (TASK-04 AC #1) */
+const INITIAL_MODULES: PlacedModule[] = [
+  // 2x Solar Panels — top-left area
+  { defId: 'solar_panel', gridX: 0, gridY: 0, online: true },
+  { defId: 'solar_panel', gridX: 1, gridY: 0, online: true },
+  // 1x Storage Bay
+  { defId: 'storage_bay', gridX: 0, gridY: 1, online: true },
+  // 2x Crew Quarters
+  { defId: 'crew_quarters', gridX: 1, gridY: 1, online: true },
+  { defId: 'crew_quarters', gridX: 0, gridY: 2, online: true },
+]
 
 export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) => ({
   resources: { ...defaultResources },
-  modules: [],
+  modules: [...INITIAL_MODULES],
   stargateProgress: 0,
   won: false,
 
