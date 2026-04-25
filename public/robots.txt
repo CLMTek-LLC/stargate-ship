@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://stargate-ship.coredumped.org/sitemap.xml
