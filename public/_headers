@@ -1,0 +1,21 @@
+# Cloudflare Pages caching policy
+# Vendor chunks (Three.js, GSAP) change rarely — long-term cache for iPad/PWA
+/assets/vendor-*
+  Cache-Control: public, max-age=31536000, immutable
+
+# App JS/CSS — content-hashed, cache forever
+/assets/index-*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Splash screen image assets
+/splash-*
+  Cache-Control: public, max-age=31536000, immutable
+
+# PWA manifest + favicon
+/manifest.json
+/favicon.svg
+  Cache-Control: public, max-age=86400
+
+# HTML — never cache (always fresh)
+/*
+  ! Cache-Control: public, max-age=0, must-revalidate
