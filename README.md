@@ -31,7 +31,7 @@ Open http://localhost:5173 in your browser (works best on iPad/tablet).
 
 ## How to Play
 
-1. Start with 100 Iron and 2 crew
+1. Start with 50 Iron and 4 crew, plus 2 Solar Panels, Storage Bay, and Crew Quarters pre-built
 2. Tap **BUILD** to open the build panel
 3. Select a module, then tap a grid cell to place it
 4. Build Solar Panels first for power, then Mining Lasers for iron
@@ -46,11 +46,11 @@ Open http://localhost:5173 in your browser (works best on iPad/tablet).
 |--------|------|-------|--------|------|
 | Solar Panel | 1×1 | +5/s | Energy production | 30 Iron |
 | Mining Laser | 1×1 | -2/s | 1 Iron/s | 50 Iron |
-| Refinery | 2×1 | -3/s | 2 Iron/s | 100 Iron |
+| Refinery | 2×1 | -3/s | 2 Iron/s | **150 Iron** |
 | Storage Bay | 1×1 | -1/s | +500 capacity | 40 Iron |
 | Crew Quarters | 1×1 | -1/s | +2 crew | 60 Iron |
-| Fusion Reactor | 2×1 | +20/s | High energy | 200 Iron |
-| Crystal Extractor | 1×1 | -4/s | 0.5 Crystal/s | 150 Iron |
+| Fusion Reactor | 2×1 | +20/s | High energy | **500 Iron** |
+| Crystal Extractor | 1×1 | -4/s | 0.5 Crystal/s | **350 Iron** |
 | Stargate Core | 3×2 | -10/s | Win condition | 500 Iron + 200 Crystal |
 
 ## Build for iOS
