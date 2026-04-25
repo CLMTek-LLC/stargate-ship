@@ -2,6 +2,7 @@ import gsap from 'gsap'
 import { gameStore, type GameStore } from '../resources/ResourceManager'
 import { MODULE_DEFS, BUILD_ORDER } from '../modules/index'
 import type { Resources } from '../resources/types'
+import { STARGATE_GOAL } from '../resources/types'
 
 const PANEL_OPEN_RIGHT = 0
 const PANEL_CLOSED_RIGHT = -300
@@ -236,8 +237,34 @@ export class HUD {
       `${res.crew}/${res.maxCrew}`
 
     // Stargate progress
-    document.getElementById('stargate-bar-inner')!.style.width = `${state.stargateProgress}%`
-    document.getElementById('stargate-percent')!.textContent = `${state.stargateProgress}%`
+    const pct = state.stargateProgress
+    document.getElementById('stargate-bar-inner')!.style.width = `${pct}%`
+    document.getElementById('stargate-percent')!.textContent = `${pct}%`
+
+    // Milestone diamonds
+    document.querySelectorAll<HTMLElement>('.sg-milestone').forEach((el) => {
+      const threshold = parseInt(el.dataset.pct || '0', 10)
+      el.classList.toggle('reached', pct >= threshold)
+    })
+
+    // Goal breakdown bars (only show when stargate core is placed)
+    const hasCore = state.modules.some((m) => m.defId === 'stargate_core')
+    const goals = document.getElementById('stargate-goals')!
+    goals.style.display = hasCore ? 'flex' : 'none'
+    if (hasCore) {
+      const ironPct = Math.min(100, Math.floor(res.iron / STARGATE_GOAL.iron * 100))
+      const crystalPct = Math.min(100, Math.floor(res.crystal / STARGATE_GOAL.crystal * 100))
+      const energyPct = Math.min(100, Math.floor(res.energy / STARGATE_GOAL.energy * 100))
+      const crewPct = Math.min(100, Math.floor(res.crew / STARGATE_GOAL.crew * 100))
+      document.getElementById('sg-goal-iron')!.style.width = `${ironPct}%`
+      document.getElementById('sg-goal-iron-label')!.textContent = `${Math.floor(res.iron)}/${STARGATE_GOAL.iron}`
+      document.getElementById('sg-goal-crystal')!.style.width = `${crystalPct}%`
+      document.getElementById('sg-goal-crystal-label')!.textContent = `${Math.floor(res.crystal)}/${STARGATE_GOAL.crystal}`
+      document.getElementById('sg-goal-energy')!.style.width = `${energyPct}%`
+      document.getElementById('sg-goal-energy-label')!.textContent = `${Math.floor(res.energy)}/${STARGATE_GOAL.energy}`
+      document.getElementById('sg-goal-crew')!.style.width = `${crewPct}%`
+      document.getElementById('sg-goal-crew-label')!.textContent = `${res.crew}/${STARGATE_GOAL.crew}`
+    }
 
     // Update build item affordability
     const items = this.buildList.querySelectorAll('.build-item')

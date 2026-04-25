@@ -70,6 +70,7 @@
       flex-direction: column;
       gap: 6px;
       z-index: 20;
+      min-width: 240px;
     }
     #stargate-label {
       font-size: 13px;
@@ -79,23 +80,104 @@
       color: #c084fc;
     }
     #stargate-bar-outer {
-      width: 220px;
-      height: 12px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 6px;
+      width: 240px;
+      height: 14px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 7px;
       overflow: hidden;
+      position: relative;
     }
     #stargate-bar-inner {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #7c3aed, #c084fc);
-      border-radius: 6px;
-      transition: width 0.5s ease;
+      background: linear-gradient(90deg, #7c3aed, #a78bfa, #c084fc);
+      border-radius: 7px;
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 0 8px rgba(124,58,237,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Shimmer sweep across the bar */
+    #stargate-bar-inner::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,0.2) 50%,
+        transparent 100%
+      );
+      animation: stargate-shimmer 2.5s ease-in-out infinite;
+    }
+    @keyframes stargate-shimmer {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+    /* Milestone diamonds */
+    #stargate-milestones {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1px;
+      margin-top: -3px;
+    }
+    .sg-milestone {
+      width: 8px;
+      height: 8px;
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 2px;
+      transform: rotate(45deg);
+      background: transparent;
+      transition: all 0.4s ease;
+    }
+    .sg-milestone.reached {
+      background: #c084fc;
+      border-color: #c084fc;
+      box-shadow: 0 0 6px rgba(192,132,252,0.5);
     }
     #stargate-percent {
       font-size: 12px;
       color: #a78bfa;
+      font-variant-numeric: tabular-nums;
     }
+    /* Goal breakdown bar set */
+    #stargate-goals {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 2px;
+    }
+    .sg-goal-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+    }
+    .sg-goal-icon { width: 14px; text-align: center; font-size: 11px; }
+    .sg-goal-bar-outer {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .sg-goal-bar-inner {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .sg-goal-label {
+      min-width: 28px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .sg-goal-iron  .sg-goal-bar-inner { background: #f87171; }
+    .sg-goal-crystal .sg-goal-bar-inner { background: #60a5fa; }
+    .sg-goal-energy .sg-goal-bar-inner { background: #fbbf24; }
+    .sg-goal-crew  .sg-goal-bar-inner { background: #34d399; }
 
     /* Bottom Toolbar */
     #bottom-bar {
@@ -463,7 +545,42 @@
       <div id="stargate-bar-outer">
         <div id="stargate-bar-inner"></div>
       </div>
+      <div id="stargate-milestones">
+        <div class="sg-milestone" data-pct="25"></div>
+        <div class="sg-milestone" data-pct="50"></div>
+        <div class="sg-milestone" data-pct="75"></div>
+      </div>
       <div id="stargate-percent">0%</div>
+      <div id="stargate-goals">
+        <div class="sg-goal-row sg-goal-iron">
+          <span class="sg-goal-icon">🪨</span>
+          <div class="sg-goal-bar-outer">
+            <div class="sg-goal-bar-inner" id="sg-goal-iron"></div>
+          </div>
+          <span class="sg-goal-label" id="sg-goal-iron-label">0/500</span>
+        </div>
+        <div class="sg-goal-row sg-goal-crystal">
+          <span class="sg-goal-icon">💎</span>
+          <div class="sg-goal-bar-outer">
+            <div class="sg-goal-bar-inner" id="sg-goal-crystal"></div>
+          </div>
+          <span class="sg-goal-label" id="sg-goal-crystal-label">0/200</span>
+        </div>
+        <div class="sg-goal-row sg-goal-energy">
+          <span class="sg-goal-icon">⚡</span>
+          <div class="sg-goal-bar-outer">
+            <div class="sg-goal-bar-inner" id="sg-goal-energy"></div>
+          </div>
+          <span class="sg-goal-label" id="sg-goal-energy-label">0/1000</span>
+        </div>
+        <div class="sg-goal-row sg-goal-crew">
+          <span class="sg-goal-icon">👥</span>
+          <div class="sg-goal-bar-outer">
+            <div class="sg-goal-bar-inner" id="sg-goal-crew"></div>
+          </div>
+          <span class="sg-goal-label" id="sg-goal-crew-label">0/8</span>
+        </div>
+      </div>
     </div>
 
     <!-- Module Info -->
