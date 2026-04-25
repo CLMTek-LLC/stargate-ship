@@ -1,5 +1,5 @@
 import type { ModuleDefinition } from '../resources/types'
-import { ResourceType } from '../resources/types'
+import { ResourceType, ModulePriority } from '../resources/types'
 
 export const MODULE_DEFS: Record<string, ModuleDefinition> = {
   mining_laser: {
@@ -13,6 +13,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 50,
     costCrystal: 0,
     description: '1 Iron/s, -2 Power/s',
+    priority: ModulePriority.Normal,
   },
   refinery: {
     id: 'refinery',
@@ -25,6 +26,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 150,
     costCrystal: 0,
     description: '2 Iron/s, -3 Power/s',
+    priority: ModulePriority.Normal,
   },
   solar_panel: {
     id: 'solar_panel',
@@ -37,6 +39,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 30,
     costCrystal: 0,
     description: '+5 Power/s',
+    priority: ModulePriority.Critical,
   },
   fusion_reactor: {
     id: 'fusion_reactor',
@@ -49,6 +52,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 500,
     costCrystal: 0,
     description: '+20 Power/s',
+    priority: ModulePriority.Critical,
   },
   storage_bay: {
     id: 'storage_bay',
@@ -61,6 +65,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 40,
     costCrystal: 0,
     description: '+500 storage, -1 Power/s',
+    priority: ModulePriority.High,
   },
   crew_quarters: {
     id: 'crew_quarters',
@@ -73,6 +78,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 60,
     costCrystal: 0,
     description: '+2 crew, -1 Power/s',
+    priority: ModulePriority.High,
   },
   crystal_extractor: {
     id: 'crystal_extractor',
@@ -85,6 +91,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 350,
     costCrystal: 0,
     description: '0.5 Crystal/s, -4 Power/s',
+    priority: ModulePriority.Low,
   },
   stargate_core: {
     id: 'stargate_core',
@@ -97,6 +104,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     costIron: 500,
     costCrystal: 200,
     description: 'Win condition, -10 Power/s',
+    priority: ModulePriority.Normal,
   },
 }
 

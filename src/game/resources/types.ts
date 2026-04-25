@@ -15,6 +15,14 @@ export interface Resources {
   maxCrew: number
 }
 
+/** Priority for power brownout — higher = more essential */
+export enum ModulePriority {
+  Critical = 3,   // power producers — never shut down
+  High = 2,       // crew, storage — last to shut down
+  Normal = 1,     // basic production
+  Low = 0,        // advanced production — first to throttle/shut down
+}
+
 export interface ModuleDefinition {
   id: string
   name: string
@@ -26,6 +34,14 @@ export interface ModuleDefinition {
   costIron: number
   costCrystal: number
   description: string
+  priority: ModulePriority
+}
+
+export interface BrownoutState {
+  /** Current crisis level: 0=normal, 1=warning, 2=critical, 3=blackout */
+  level: 0 | 1 | 2 | 3
+  /** Production multiplier applied to non-critical modules */
+  productionMult: number
 }
 
 export interface PlacedModule {
@@ -40,6 +56,7 @@ export interface GameState {
   modules: PlacedModule[]
   stargateProgress: number
   won: boolean
+  brownout: BrownoutState
 }
 
 export const STARGATE_GOAL = {

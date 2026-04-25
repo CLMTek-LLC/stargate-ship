@@ -344,6 +344,51 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+
+    /* Brownout Indicator */
+    #brownout-indicator {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 30;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: opacity 0.5s ease;
+    }
+    #brownout-indicator.visible {
+      display: flex;
+    }
+    #brownout-indicator.level-1 {
+      background: rgba(251,191,36,0.2);
+      border: 1px solid rgba(251,191,36,0.4);
+      color: #fbbf24;
+    }
+    #brownout-indicator.level-2 {
+      background: rgba(251,146,60,0.25);
+      border: 1px solid rgba(251,146,60,0.5);
+      color: #fb923c;
+      animation: pulse-warning 1.5s ease-in-out infinite;
+    }
+    #brownout-indicator.level-3 {
+      background: rgba(239,68,68,0.3);
+      border: 1px solid rgba(239,68,68,0.6);
+      color: #f87171;
+      animation: pulse-warning 0.8s ease-in-out infinite;
+    }
+    @keyframes pulse-warning {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+    #brownout-icon { font-size: 16px; }
+    #brownout-text { white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -411,8 +456,14 @@
     <button id="win-btn">Travel to New System</button>
   </div>
 
-  <!-- Toast -->
+    <!-- Toast -->
   <div id="toast"></div>
+
+  <!-- Brownout Indicator -->
+  <div id="brownout-indicator">
+    <span id="brownout-icon">⚡</span>
+    <span id="brownout-text">Power Warning</span>
+  </div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>

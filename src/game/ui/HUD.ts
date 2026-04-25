@@ -248,6 +248,60 @@ export class HUD {
       const canAfford = res.iron >= def.costIron && res.crystal >= def.costCrystal
       el.classList.toggle('disabled', !canAfford)
     })
+
+    // Brownout indicator
+    this.updateBrownout(state)
+  }
+
+  private prevBrownoutLevel = 0
+  private updateBrownout(state: GameStore) {
+    const el = document.getElementById('brownout-indicator')!
+    const iconEl = document.getElementById('brownout-icon')!
+    const textEl = document.getElementById('brownout-text')!
+    const level = state.brownout.level
+
+    if (level !== this.prevBrownoutLevel) {
+      // Toast on level change
+      const messages: Record<number, string> = {
+        1: '⚠️ Power Warning — production reduced',
+        2: '🔴 Power Crisis — low priority modules offline!',
+        3: '⛔ BLACKOUT — only power generators running!',
+      }
+      const recovery = {
+        1: '✅ Power restored — production normal',
+        2: '⚠️ Power improving — production recovering',
+        3: '🔴 Power stabilizing — crisis de-escalating',
+      }
+      if (level > 0 && messages[level as 1 | 2 | 3]) {
+        this.toast(messages[level as 1 | 2 | 3], level >= 2 ? '#f87171' : '#fbbf24')
+      } else if (level === 0 && this.prevBrownoutLevel > 0) {
+        const key = this.prevBrownoutLevel as 1 | 2 | 3
+        this.toast(recovery[key] ?? '✅ Power restored!', '#4ade80')
+      }
+      this.prevBrownoutLevel = level
+    }
+
+    if (level === 0) {
+      el.classList.remove('visible', 'level-1', 'level-2', 'level-3')
+      return
+    }
+
+    el.classList.add('visible', `level-${level}`)
+
+    switch (level) {
+      case 1:
+        iconEl.textContent = '⚠️'
+        textEl.textContent = 'Power Warning — production reduced'
+        break
+      case 2:
+        iconEl.textContent = '🔴'
+        textEl.textContent = 'Power Crisis — low priority offline!'
+        break
+      case 3:
+        iconEl.textContent = '⛔'
+        textEl.textContent = 'BLACKOUT — only power online!'
+        break
+    }
   }
 
   private calcNetPower(state: GameStore): number {
