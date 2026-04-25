@@ -11,11 +11,11 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks(id: string) {
           // Three.js + GSAP vendors change rarely — separate chunk for long-term caching
-          vendor: ['three', 'gsap'],
+          if (id.includes('node_modules/three') || id.includes('node_modules/gsap')) return 'vendor'
           // Capacitor deps — only affect iOS builds
-          mobile: ['@capacitor/core', '@capacitor/haptics'],
+          if (id.includes('@capacitor/core') || id.includes('@capacitor/haptics')) return 'mobile'
         },
       },
     },
