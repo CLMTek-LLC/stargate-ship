@@ -13,7 +13,7 @@ export interface GameStore extends GameState {
 }
 
 const defaultResources: Resources = {
-  iron: 100,
+  iron: 50,
   crystal: 0,
   energy: 0,
   crew: 4,

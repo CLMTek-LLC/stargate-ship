@@ -22,7 +22,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     color: 0x22c55e, // darker green
     powerPerTick: -3,
     production: { [ResourceType.Iron]: 2 },
-    costIron: 100,
+    costIron: 150,
     costCrystal: 0,
     description: '2 Iron/s, -3 Power/s',
   },
@@ -46,7 +46,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     color: 0xf59e0b, // amber
     powerPerTick: 20,
     production: {},
-    costIron: 200,
+    costIron: 500,
     costCrystal: 0,
     description: '+20 Power/s',
   },
@@ -82,7 +82,7 @@ export const MODULE_DEFS: Record<string, ModuleDefinition> = {
     color: 0x818cf8, // indigo
     powerPerTick: -4,
     production: { [ResourceType.Crystal]: 0.5 },
-    costIron: 150,
+    costIron: 350,
     costCrystal: 0,
     description: '0.5 Crystal/s, -4 Power/s',
   },
