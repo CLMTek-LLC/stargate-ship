@@ -1,0 +1,20 @@
+# Auto-maintained by Nautilus (Hermes Dream Cycle)
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    groups:
+      npm_and_yarn:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "auto-merge"
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
