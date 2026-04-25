@@ -483,7 +483,7 @@ export class Game {
     // Sync ship visuals with state
     const state = gameStore.getState()
     this.ship.syncModules(state.modules)
-    this.ship.updateParticles(dt, state.modules)
+    this.ship.updateParticles(dt, elapsed, state.modules)
 
     // Update HUD
     this.hud.update(state)

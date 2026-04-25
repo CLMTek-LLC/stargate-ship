@@ -46,7 +46,7 @@ export class Ship {
     this.moduleGroup = new THREE.Group()
     this.hullTileGroup = new THREE.Group()
 
-    // Grid base (hull floor)
+    // Grid base (hull floor) with ambient glow
     const gridGeo = new THREE.BoxGeometry(
       GRID_WIDTH * CELL_SIZE,
       0.15,
@@ -56,6 +56,8 @@ export class Ship {
       color: HULL_COLOR,
       roughness: 0.8,
       metalness: 0.2,
+      emissive: new THREE.Color(0x4f6f8f),
+      emissiveIntensity: 0.08,
     })
     this.gridPlane = new THREE.Mesh(gridGeo, gridMat)
     this.gridPlane.position.set(
@@ -240,10 +242,14 @@ export class Ship {
     }
   }
 
-  updateParticles(dt: number, modules: PlacedModule[]) {
+  updateParticles(dt: number, elapsed: number, modules: PlacedModule[]) {
     if (!this.particlePool) return
     const { positions, velocities, colors, lifetimes, points } = this.particlePool
     const count = lifetimes.length
+
+    // Hull ambient glow pulse — breathing effect on the grid plane
+    const pulse = 0.06 + 0.03 * Math.sin(elapsed * 1.2)
+    ;(this.gridPlane.material as THREE.MeshStandardMaterial).emissiveIntensity = pulse
 
     // Update existing particles
     for (let i = 0; i < count; i++) {
