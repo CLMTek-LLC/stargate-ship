@@ -4,6 +4,7 @@ import { Ship } from './Ship'
 import { SpriteSheet } from './SpriteSheet'
 import { TouchInput } from './input/TouchInput'
 import { HUD } from './ui/HUD'
+import { Tutorial } from './ui/Tutorial'
 import { gameStore } from './resources/ResourceManager'
 import { MODULE_DEFS } from './modules/index'
 import type { PlacedModule, GameState } from './resources/types'
@@ -22,6 +23,7 @@ export class Game {
   private spriteSheet: SpriteSheet
   private input!: TouchInput
   private hud!: HUD
+  private tutorial!: Tutorial
   private clock = new THREE.Clock()
   private tickTimer = 0
   private saveTimer = 0
@@ -101,6 +103,11 @@ export class Game {
     // HUD
     this.hud = new HUD()
     this.setupHUD()
+
+    // Tutorial (first-time player guide) — skip if returning player
+    const hasSave = localStorage.getItem('stargate-ship-save') !== null
+    this.tutorial = new Tutorial()
+    if (hasSave) this.tutorial.dismiss()
 
     // Load saved state
     this.loadGame()
