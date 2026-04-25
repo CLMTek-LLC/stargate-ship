@@ -1,5 +1,5 @@
 import { createStore, type StoreApi } from 'zustand/vanilla'
-import type { Resources, GameState, PlacedModule, BrownoutState } from './types'
+import type { Resources, GameState, PlacedModule, BrownoutState, CrewShortageState } from './types'
 import { STARGATE_GOAL } from './types'
 import { MODULE_DEFS } from '../modules/index'
 import { ModulePriority } from './types'
@@ -12,6 +12,7 @@ export interface GameStore extends GameState {
   loadState: (state: Partial<GameState>) => void
   getSnapshot: () => GameState
   brownout: BrownoutState
+  crewShortage: CrewShortageState
 }
 
 const defaultResources: Resources = {
@@ -43,6 +44,7 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
   stargateProgress: 0,
   won: false,
   brownout: { level: 0, productionMult: 1 },
+  crewShortage: { level: 0, productionMult: 1 },
 
   addModule: (m) => set((state) => ({
     modules: [...state.modules, m],
@@ -73,10 +75,6 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
     const netPower = powerProduction - powerConsumption
     res.energy = Math.max(0, Math.min(res.maxEnergy, res.energy + netPower))
 
-    // Check crew requirement: 1 crew per 3 modules
-    const crewRequired = Math.ceil(modules.length / 3)
-    const crewSufficient = res.crew >= crewRequired
-
     // --- Progressive brownout: power crisis mechanic (TASK-04 AC #3) ---
     // Power producers always stay online. Non-critical modules are progressively
     // throttled or shut down based on energy reserves, making crises interesting
@@ -84,9 +82,6 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
     let brownoutLevel: 0 | 1 | 2 | 3 = 0
     let productionMult = 1
 
-    // First: sort modules by priority so we can decide online state consistently
-    // We always leave power producers (Critical) online. Then we progressively
-    // disable modules starting from lowest priority as energy depletes.
     if (res.energy <= 0 && netPower < 0) {
       // Blackout — energy drained, negative net. Only Critical modules stay on.
       brownoutLevel = 3
@@ -118,17 +113,35 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
       }
     }
 
-    // If not enough crew, disable modules from tail until ratio met
-    if (!crewSufficient) {
-      const toDisable = crewRequired - res.crew
-      let disabled = 0
-      for (let i = modules.length - 1; i >= 0 && disabled < toDisable * 3; i--) {
-        const def = MODULE_DEFS[modules[i].defId]
-        if (def?.priority === ModulePriority.Critical) continue
-        modules[i].online = false
-        disabled++
-      }
+    // Check crew requirement: 1 crew per 3 modules
+    const totalModules = modules.length
+    const crewRequired = Math.ceil(totalModules / 3)
+    const crewRatio = crewRequired > 0 ? res.crew / crewRequired : 1
+
+    // --- Crew shortage: progressive shutdown (TASK-04 AC #4) ---
+    // Progressive production throttle based on crew deficit rather than
+    // shutting random modules down. This makes crew shortage a gradual
+    // drag on efficiency rather than an abrupt binary flip.
+    let crewLevel: 0 | 1 | 2 | 3 = 0
+    let crewMult = 1
+
+    if (crewRatio < 0.25) {
+      // Stalled — over 75% crew deficit. Most production halts.
+      crewLevel = 3
+      crewMult = 0.1
+    } else if (crewRatio < 0.50) {
+      // Critical — between 50-75% deficit. 25% production.
+      crewLevel = 2
+      crewMult = 0.25
+    } else if (crewRatio < 0.75) {
+      // Warning — between 25-50% deficit. Half production.
+      crewLevel = 1
+      crewMult = 0.5
     }
+
+    // Combine brownout & crew shortage multiplicatively for the effective
+    // production multiplier. Both penalties stack for maximum pain.
+    const effectiveMult = productionMult * crewMult
 
     // Process production for online modules
     for (const mod of modules) {
@@ -136,12 +149,12 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
       const def = MODULE_DEFS[mod.defId]
       if (!def) continue
 
-      // Resource production (scaled by brownout multiplier)
+      // Resource production (scaled by brownout & crew shortage multiplier)
       if (def.production.iron) {
-        res.iron = Math.min(res.maxIron, res.iron + def.production.iron * productionMult)
+        res.iron = Math.min(res.maxIron, res.iron + def.production.iron * effectiveMult)
       }
       if (def.production.crystal) {
-        res.crystal = Math.min(res.maxCrystal, res.crystal + def.production.crystal * productionMult)
+        res.crystal = Math.min(res.maxCrystal, res.crystal + def.production.crystal * effectiveMult)
       }
 
       // Storage & crew capacity handled below
@@ -174,6 +187,7 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
       modules,
       stargateProgress: progress,
       brownout: { level: brownoutLevel, productionMult },
+      crewShortage: { level: crewLevel, productionMult: crewMult },
     }
   }),
 
@@ -185,6 +199,7 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
     stargateProgress: saved.stargateProgress ?? state.stargateProgress,
     won: saved.won ?? state.won,
     brownout: saved.brownout ?? state.brownout,
+    crewShortage: saved.crewShortage ?? state.crewShortage,
   })),
 
   getSnapshot: () => {
@@ -195,6 +210,7 @@ export const gameStore: StoreApi<GameStore> = createStore<GameStore>((set, get) 
       stargateProgress: s.stargateProgress,
       won: s.won,
       brownout: s.brownout,
+      crewShortage: s.crewShortage,
     }
   },
 }))

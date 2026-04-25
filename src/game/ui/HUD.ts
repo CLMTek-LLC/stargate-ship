@@ -251,6 +251,9 @@ export class HUD {
 
     // Brownout indicator
     this.updateBrownout(state)
+
+    // Crew shortage indicator
+    this.updateCrewShortage(state)
   }
 
   private prevBrownoutLevel = 0
@@ -300,6 +303,56 @@ export class HUD {
       case 3:
         iconEl.textContent = '⛔'
         textEl.textContent = 'BLACKOUT — only power online!'
+        break
+    }
+  }
+
+  private prevCrewShortageLevel = 0
+  private updateCrewShortage(state: GameStore) {
+    const el = document.getElementById('crew-shortage-indicator')!
+    const iconEl = document.getElementById('crew-shortage-icon')!
+    const textEl = document.getElementById('crew-shortage-text')!
+    const level = state.crewShortage.level
+
+    if (level !== this.prevCrewShortageLevel) {
+      const messages: Record<number, string> = {
+        1: '🧑‍🚀 Crew Warning — production reduced (75% crew)',
+        2: '🔴 Crew Crisis — severe shortage! (50% crew)',
+        3: '⛔ Crew Stalled — minimal output (25% crew)!',
+      }
+      const recovery: Record<number, string> = {
+        1: '✅ Crew restored — production normal',
+        2: '⚠️ Crew improving — production recovering',
+        3: '🔴 Crew stabilizing — crisis de-escalating',
+      }
+      if (level > 0 && messages[level as 1 | 2 | 3]) {
+        this.toast(messages[level as 1 | 2 | 3], level >= 2 ? '#f87171' : '#fbbf24')
+      } else if (level === 0 && this.prevCrewShortageLevel > 0) {
+        const key = this.prevCrewShortageLevel as 1 | 2 | 3
+        this.toast(recovery[key] ?? '✅ Crew restored!', '#4ade80')
+      }
+      this.prevCrewShortageLevel = level
+    }
+
+    if (level === 0) {
+      el.classList.remove('visible', 'level-1', 'level-2', 'level-3')
+      return
+    }
+
+    el.classList.add('visible', `level-${level}`)
+
+    switch (level) {
+      case 1:
+        iconEl.textContent = '⚠️'
+        textEl.textContent = 'Crew Warning — production reduced'
+        break
+      case 2:
+        iconEl.textContent = '🔴'
+        textEl.textContent = 'Crew Crisis — severe shortage!'
+        break
+      case 3:
+        iconEl.textContent = '⛔'
+        textEl.textContent = 'Crew Stalled — minimal output!'
         break
     }
   }

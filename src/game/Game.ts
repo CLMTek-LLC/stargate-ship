@@ -608,6 +608,7 @@ export class Game {
       stargateProgress: state.stargateProgress,
       won: state.won,
       brownout: state.brownout,
+      crewShortage: state.crewShortage,
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot))
   }

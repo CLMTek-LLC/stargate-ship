@@ -44,6 +44,13 @@ export interface BrownoutState {
   productionMult: number
 }
 
+export interface CrewShortageState {
+  /** Crisis level: 0=normal, 1=warning (75% crew), 2=critical (50% crew), 3=stalled (25% crew) */
+  level: 0 | 1 | 2 | 3
+  /** Production multiplier for affected modules */
+  productionMult: number
+}
+
 export interface PlacedModule {
   defId: string
   gridX: number
@@ -57,6 +64,7 @@ export interface GameState {
   stargateProgress: number
   won: boolean
   brownout: BrownoutState
+  crewShortage: CrewShortageState
 }
 
 export const STARGATE_GOAL = {
