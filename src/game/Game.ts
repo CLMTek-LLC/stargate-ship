@@ -492,17 +492,110 @@ export class Game {
     this.renderer.render(this.scene, this.isoCamera.camera)
   }
 
-  private triggerWin() {
-    const overlay = document.getElementById('win-overlay')!
+  private warpLines: THREE.Points | null = null
+  private warpActive = false
 
-    gsap.to(overlay, {
-      opacity: 1,
-      duration: 2,
-      delay: 1,
-      onStart: () => {
+  private triggerWin() {
+    if (this.warpActive) return
+    this.warpActive = true
+
+    // ── Warp light streak particles ─────────────────────────────────
+    const warpCount = 200
+    const warpPos = new Float32Array(warpCount * 3)
+    const warpColors = new Float32Array(warpCount * 3)
+    for (let i = 0; i < warpCount; i++) {
+      // Spread particles across the ship grid area
+      const angle = Math.random() * Math.PI * 2
+      const radius = 2 + Math.random() * 8
+      warpPos[i * 3] = 10 + Math.cos(angle) * radius     // x
+      warpPos[i * 3 + 1] = Math.random() * 4               // y
+      warpPos[i * 3 + 2] = 6 + Math.sin(angle) * radius     // z
+
+      // Purple to white gradient
+      const t = Math.random()
+      warpColors[i * 3] = 0.6 + t * 0.4       // R
+      warpColors[i * 3 + 1] = 0.3 + t * 0.6   // G
+      warpColors[i * 3 + 2] = 0.8 + t * 0.2   // B
+    }
+
+    const warpGeo = new THREE.BufferGeometry()
+    warpGeo.setAttribute('position', new THREE.BufferAttribute(warpPos, 3))
+    warpGeo.setAttribute('color', new THREE.BufferAttribute(warpColors, 3))
+
+    const warpMat = new THREE.PointsMaterial({
+      size: 0.6,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+
+    this.warpLines = new THREE.Points(warpGeo, warpMat)
+    this.warpLines.renderOrder = 50
+    this.scene.add(this.warpLines)
+
+    // ── Animate ─────────────────────────────────────────────────────
+
+    // Flash the warp particles in + streak them upward
+    const tl = gsap.timeline({
+      onComplete: () => {
+        const overlay = document.getElementById('win-overlay')!
         overlay.style.pointerEvents = 'auto'
       },
     })
+
+    // Warp particles fade in
+    tl.to(warpMat, { opacity: 1, duration: 0.4, ease: 'power2.out' })
+
+    // Streak particles upward and outward (via position animation)
+    const streakDuration = 2.5
+    const startPos = new Float32Array(warpPos)
+    const endPos = new Float32Array(warpCount * 3)
+    for (let i = 0; i < warpCount; i++) {
+      const angle = Math.random() * Math.PI * 2
+      const speed = 3 + Math.random() * 8
+      endPos[i * 3] = startPos[i * 3] + Math.cos(angle) * speed     // x
+      endPos[i * 3 + 1] = startPos[i * 3 + 1] + 2 + Math.random() * 6  // y (upward)
+      endPos[i * 3 + 2] = startPos[i * 3 + 2] + Math.sin(angle) * speed // z
+    }
+
+    // Animate via onUpdate — move particles each frame
+    let streakProgress = 0
+    tl.to({}, {
+      duration: streakDuration,
+      ease: 'power1.in',
+      onUpdate: () => {
+        if (!this.warpLines) return
+        const pos = this.warpLines.geometry.attributes.position as THREE.BufferAttribute
+        const arr = pos.array as Float32Array
+        streakProgress = tl.progress()
+        for (let i = 0; i < warpCount; i++) {
+          const t = Math.min(1, streakProgress * 1.3)
+          arr[i * 3] = startPos[i * 3] + (endPos[i * 3] - startPos[i * 3]) * t
+          arr[i * 3 + 1] = startPos[i * 3 + 1] + (endPos[i * 3 + 1] - startPos[i * 3 + 1]) * t
+          arr[i * 3 + 2] = startPos[i * 3 + 2] + (endPos[i * 3 + 2] - startPos[i * 3 + 2]) * t
+        }
+        pos.needsUpdate = true
+      },
+    })
+
+    // Purple flash on camera (rim light pulse)
+    const rimLights = this.scene.children.filter(
+      (c): c is THREE.DirectionalLight =>
+        c instanceof THREE.DirectionalLight && c.color.getHex() === 0x7c3aed,
+    )
+    for (const rl of rimLights) {
+      tl.to(rl, { intensity: 2.0, duration: 0.2, ease: 'power2.out' }, 0)
+      tl.to(rl, { intensity: 0.4, duration: 1.0, ease: 'power2.in' }, '-=0.1')
+    }
+
+    // Fade warp particles out
+    tl.to(warpMat, { opacity: 0, duration: 1.0, ease: 'power2.in' }, '-=1.2')
+
+    // Overlay fade in (after effects)
+    const overlay = document.getElementById('win-overlay')!
+    tl.to(overlay, { opacity: 1, duration: 1.5, ease: 'power2.out' }, '-=0.5')
   }
 
   // ── Save / Load ───────────────────────────────────────────────────
