@@ -11,12 +11,15 @@
 /splash-*
   Cache-Control: public, max-age=31536000, immutable
 
-# PWA manifest + favicon + install icons
+# PWA manifest + favicon + install icons + runtime sprites
 /manifest.json
 /favicon.svg
 /apple-touch-icon.png
 /icon-*.png
 /og-image.png
+/splash-*.png
+/sprites/*.png
+/sprites/manifest.json
   Cache-Control: public, max-age=604800
 
 # Custom 404 page — never cache (Cloudflare shows it on bad URLs)
