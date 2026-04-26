@@ -23,6 +23,7 @@
 
 # Custom 404 page — never cache (Cloudflare shows it on bad URLs)
 /404.html
+/offline.html
   Cache-Control: public, max-age=0, must-revalidate
 
 # HTML — never cache (always revalidate)
