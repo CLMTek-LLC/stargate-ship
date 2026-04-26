@@ -61,6 +61,16 @@
   </script>
 
   <title>Stargate Ship — Build, Gather, and Power the Gate</title>
+  <script>
+    // Register service worker for PWA offline support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // SW registration failure is non-fatal — game still works online
+        });
+      });
+    }
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
