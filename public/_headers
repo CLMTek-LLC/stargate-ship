@@ -19,6 +19,9 @@
   Cache-Control: public, max-age=604800
 
 # HTML — never cache (always revalidate)
+# /*.html: matches /index.html but NOT root URL /
+# /: root path — Cloudflare _headers matches on request URL, not internal file path
+/
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
