@@ -65,9 +65,50 @@
     // Register service worker for PWA offline support
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {
+        let refreshing = false;
+        // Detect when a new SW takes over — reload the page
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          window.location.reload();
+        });
+
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+          // Check if a new SW is already waiting
+          if (reg.waiting) {
+            showUpdateBanner(reg);
+          }
+
+          // Detect new SW being installed
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateBanner(reg);
+              }
+            });
+          });
+        }).catch(() => {
           // SW registration failure is non-fatal — game still works online
         });
+
+        function showUpdateBanner(reg) {
+          const banner = document.getElementById('update-banner');
+          if (!banner) return;
+          banner.style.display = 'flex';
+
+          const updateBtn = document.getElementById('update-btn');
+          if (updateBtn) {
+            updateBtn.onclick = () => {
+              reg.waiting?.postMessage({ type: 'SKIP_WAITING' });
+            };
+          }
+
+          const closeBtn = document.getElementById('update-close');
+          if (closeBtn) {
+            closeBtn.onclick = () => { banner.style.display = 'none'; };
+          }
+        }
       });
     }
   </script>
@@ -578,10 +619,63 @@
     }
     #brownout-icon { font-size: 16px; }
     #brownout-text { white-space: nowrap; }
+
+    /* Update Banner — floating notification when new version is available */
+    #update-banner {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: rgba(10,10,26,0.96);
+      border: 1px solid #7c3aed;
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 24px rgba(124,58,237,0.3);
+      font-size: 14px;
+      color: #e0e0e0;
+      animation: bannerSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: auto;
+    }
+    @keyframes bannerSlideIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    #update-banner .banner-text { white-space: nowrap; }
+    #update-banner .banner-btn {
+      padding: 6px 16px;
+      background: #7c3aed;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #update-banner .banner-btn:hover { background: #6d28d9; }
+    #update-banner .banner-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    #update-banner .banner-close:hover { color: #fff; }
   </style>
 </head>
 <body>
   <div id="game-container"></div>
+  <div id="update-banner" style="display:none">
+    <span class="banner-text">✨ A new version is available!</span>
+    <button class="banner-btn" id="update-btn">Update</button>
+    <button class="banner-close" id="update-close">✕</button>
+  </div>
 
   <div id="hud">
     <!-- Resource Bar -->

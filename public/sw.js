@@ -1,6 +1,6 @@
 // Stargate Ship — Service Worker
 // Cache name includes date for easy busting
-const CACHE = 'sgs-v1-2026-04-26';
+const CACHE = 'sgs-v2-2026-04-26';
 const PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -28,6 +28,13 @@ self.addEventListener('activate', (event) => {
       Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
+});
+
+// Listen for skip-waiting message from the page
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Fetch — stale-while-revalidate for HTML, cache-first for assets, network-first for everything else
