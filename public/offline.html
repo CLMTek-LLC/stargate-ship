@@ -29,10 +29,19 @@
       max-width: 400px;
       background: rgba(124,58,237,0.04);
     }
-    .icon {
-      font-size: 64px;
-      margin-bottom: 1rem;
-      opacity: 0.6;
+    .icon-ring {
+      width: 72px; height: 72px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: rgba(124,58,237,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(124,58,237,0.2);
+    }
+    .icon-ring img {
+      width: 48px; height: 48px;
+      display: block;
     }
     h1 {
       font-size: 1.5rem;
@@ -55,16 +64,19 @@
       padding: 0.6rem 1.2rem;
       border-radius: 8px;
       font-size: 0.9rem;
-      transition: background 0.2s;
+      transition: background 0.2s, box-shadow 0.2s;
     }
-    a:hover { background: rgba(124,58,237,0.1); }
+    a:hover {
+      background: rgba(124,58,237,0.1);
+      box-shadow: 0 0 12px rgba(124,58,237,0.3);
+    }
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="icon">🚀</div>
+    <div class="icon-ring"><img src="/favicon.svg" alt="" width="48" height="48" /></div>
     <h1><span class="blink">_</span> Offline</h1>
     <p>You've lost the connection to Destiny.<br />Reconnect to continue charging the Stargate.</p>
     <a href="/">Try again</a>
