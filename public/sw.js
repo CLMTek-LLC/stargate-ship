@@ -1,6 +1,6 @@
 // Stargate Ship — Service Worker
 // Cache name includes date for easy busting
-const CACHE = 'sgs-v2-2026-04-26';
+const CACHE = 'sgs-v3-2026-04-26';
 const PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -12,6 +12,17 @@ const PRECACHE_URLS = [
   '/og-image.png',
   '/404.html',
   '/offline.html',
+  // Core game sprite textures — precached for instant offline availability
+  '/sprites/nebula.png',
+  '/sprites/hull.png',
+  '/sprites/stargate_core.png',
+  '/sprites/crystal_extractor.png',
+  '/sprites/crew_quarters.png',
+  '/sprites/storage_bay.png',
+  '/sprites/fusion_reactor.png',
+  '/sprites/solar_panel.png',
+  '/sprites/refinery.png',
+  '/sprites/mining_laser.png',
 ];
 
 // Install — precache the app shell
