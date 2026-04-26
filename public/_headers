@@ -19,5 +19,10 @@
   Cache-Control: public, max-age=604800
 
 # HTML — never cache (always revalidate)
-/*
+/*.html
   Cache-Control: public, max-age=0, must-revalidate
+
+# XML, robots — moderate cache for SEO crawlers
+/sitemap.xml
+/robots.txt
+  Cache-Control: public, max-age=3600
