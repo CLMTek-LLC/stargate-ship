@@ -16,7 +16,12 @@
 /favicon.svg
 /apple-touch-icon.png
 /icon-*.png
+/og-image.png
   Cache-Control: public, max-age=604800
+
+# Custom 404 page — never cache (Cloudflare shows it on bad URLs)
+/404.html
+  Cache-Control: public, max-age=0, must-revalidate
 
 # HTML — never cache (always revalidate)
 # /*.html: matches /index.html but NOT root URL /
